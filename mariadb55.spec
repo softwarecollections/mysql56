@@ -46,9 +46,10 @@ mkdir -p %{buildroot}%{_scl_scripts}/root
 # architecture everytime the 'scl enable ...' is run and set the 
 # LD_LIBRARY_PATH accordingly
 cat >> %{buildroot}%{_scl_scripts}/enable << EOF
-export PATH=%{_bindir}:\$PATH
-export LIBRARY_PATH=%{_scl_root}`rpm -E %%_libdir`:\$LIBRARY_PATH
-export LD_LIBRARY_PATH=%{_scl_root}`rpm -E %%_libdir`:\$LD_LIBRARY_PATH
+export PATH=%{_bindir}${PATH:+:\${PATH}}
+export LIBRARY_PATH=%{_libdir}\${LIBRARY_PATH:+:\${LIBRARY_PATH}}
+export LD_LIBRARY_PATH=%{_libdir}\${LD_LIBRARY_PATH:+:\${LD_LIBRARY_PATH}}
+export MANPATH=%{_mandir}\${MANPATH:+:\${MANPATH}}
 EOF
 
 cat >> %{buildroot}%{_scl_scripts}/service-environment << EOF
@@ -88,6 +89,7 @@ EOF
 - Don't require policycoreutils-python in RHEL-5 or older
 - Require mariadb-server from the collection as main package
 - Build separately on all arches
+- Fix Environment variables definition
 
 * Thu Mar 21 2013 Honza Horak <hhorak@redhat.com> 1-1
 - initial packaging
