@@ -4,13 +4,15 @@
 Summary: Package that installs %scl
 Name: %scl_name
 Version: 1
-Release: 1%{?dist}
+Release: 2%{?dist}
 BuildArch: noarch
 License: GPLv2+
 Group: Applications/File
 Requires: scl-utils
 Requires: %{scl_prefix}mariadb
+%if 0%{?rhel} >= 6
 Requires(post): policycoreutils-python
+%endif
 BuildRequires: scl-utils-build
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -83,6 +85,9 @@ EOF
 %{_root_sysconfdir}/rpm/macros.%{scl}-config
 
 %changelog
+* Mon Apr  8 2013 Honza Horak <hhorak@redhat.com> 1-2
+- Don't require policycoreutils-python in RHEL-5 or older
+
 * Thu Mar 21 2013 Honza Horak <hhorak@redhat.com> 1-1
 - initial packaging
 
