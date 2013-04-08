@@ -9,7 +9,7 @@ BuildArch: noarch
 License: GPLv2+
 Group: Applications/File
 Requires: scl-utils
-Requires: %{scl_prefix}mariadb
+Requires: %{scl_prefix}mariadb-server
 %if 0%{?rhel} >= 6
 Requires(post): policycoreutils-python
 %endif
@@ -87,6 +87,7 @@ EOF
 %changelog
 * Mon Apr  8 2013 Honza Horak <hhorak@redhat.com> 1-2
 - Don't require policycoreutils-python in RHEL-5 or older
+- Require mariadb-server from the collection as main package
 
 * Thu Mar 21 2013 Honza Horak <hhorak@redhat.com> 1-1
 - initial packaging
