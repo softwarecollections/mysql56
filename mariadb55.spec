@@ -5,7 +5,6 @@ Summary: Package that installs %scl
 Name: %scl_name
 Version: 1
 Release: 2%{?dist}
-BuildArch: noarch
 License: GPLv2+
 Group: Applications/File
 Requires: scl-utils
@@ -88,6 +87,7 @@ EOF
 * Mon Apr  8 2013 Honza Horak <hhorak@redhat.com> 1-2
 - Don't require policycoreutils-python in RHEL-5 or older
 - Require mariadb-server from the collection as main package
+- Build separately on all arches
 
 * Thu Mar 21 2013 Honza Horak <hhorak@redhat.com> 1-1
 - initial packaging
