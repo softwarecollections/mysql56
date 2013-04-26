@@ -4,7 +4,7 @@
 Summary: Package that installs %scl
 Name: %scl_name
 Version: 1
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: GPLv2+
 Group: Applications/File
 Requires: scl-utils
@@ -46,7 +46,7 @@ mkdir -p %{buildroot}%{_scl_scripts}/root
 # architecture everytime the 'scl enable ...' is run and set the 
 # LD_LIBRARY_PATH accordingly
 cat >> %{buildroot}%{_scl_scripts}/enable << EOF
-export PATH=%{_bindir}${PATH:+:\${PATH}}
+export PATH=%{_bindir}\${PATH:+:\${PATH}}
 export LIBRARY_PATH=%{_libdir}\${LIBRARY_PATH:+:\${LIBRARY_PATH}}
 export LD_LIBRARY_PATH=%{_libdir}\${LD_LIBRARY_PATH:+:\${LD_LIBRARY_PATH}}
 export MANPATH=%{_mandir}\${MANPATH:+:\${MANPATH}}
@@ -85,6 +85,9 @@ EOF
 %{_root_sysconfdir}/rpm/macros.%{scl}-config
 
 %changelog
+* Fri Apr 26 2013 Honza Horak <hhorak@redhat.com> 1-3
+- fix escaping in PATH variable definition
+
 * Mon Apr  8 2013 Honza Horak <hhorak@redhat.com> 1-2
 - Don't require policycoreutils-python in RHEL-5 or older
 - Require mariadb-server from the collection as main package
