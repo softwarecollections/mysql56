@@ -4,7 +4,7 @@
 Summary: Package that installs %scl
 Name: %scl_name
 Version: 1
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: GPLv2+
 Group: Applications/File
 Requires: scl-utils
@@ -72,7 +72,9 @@ EOF
 # have its own policy for collection
 %if 0%{?rhel} >= 6
     semanage fcontext -a -e / %{_scl_root} >/dev/null 2>&1 || :
+    semanage fcontext -a -e /etc/rc.d/init.d/mysqld /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
     restorecon -R %{_scl_root} >/dev/null 2>&1 || :
+    restorecon /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
 %endif
 
 %files
@@ -85,6 +87,9 @@ EOF
 %{_root_sysconfdir}/rpm/macros.%{scl}-config
 
 %changelog
+* Thu May  2 2013 Honza Horak <hhorak@redhat.com> 1-4
+- Handle context of the init script
+
 * Fri Apr 26 2013 Honza Horak <hhorak@redhat.com> 1-3
 - fix escaping in PATH variable definition
 
