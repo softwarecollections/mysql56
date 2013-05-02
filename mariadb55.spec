@@ -16,7 +16,11 @@ BuildRequires: scl-utils-build
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description
-This is the main package for %scl Software Collection.
+This is the main package for %scl Software Collection, which installs
+necessary packages to use MariaDB 5.5 server, a community developed branch
+of MySQL. Software Collections allow to install more versions of the same
+package by using alternative directory structure.
+Install this package if you want to use MariaDB 5.5 server on your system.
 
 %package runtime
 Summary: Package that handles %scl Software Collection.
@@ -31,7 +35,8 @@ Summary: Package shipping basic build configuration
 Group: Applications/File
 
 %description build
-Package shipping essential configuration macros to build %scl Software Collection.
+Package shipping essential configuration macros to build %scl Software
+Collection or packages depending on %scl Software Collection.
 
 %prep
 %setup -c -T
@@ -89,6 +94,7 @@ EOF
 %changelog
 * Thu May  2 2013 Honza Horak <hhorak@redhat.com> 1-4
 - Handle context of the init script
+- Add better descriptions for packages
 
 * Fri Apr 26 2013 Honza Horak <hhorak@redhat.com> 1-3
 - fix escaping in PATH variable definition
