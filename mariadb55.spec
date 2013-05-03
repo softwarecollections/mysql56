@@ -4,14 +4,12 @@
 Summary: Package that installs %scl
 Name: %scl_name
 Version: 1
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: GPLv2+
 Group: Applications/File
 Requires: scl-utils
 Requires: %{scl_prefix}mariadb-server
-%if 0%{?rhel} >= 6
 Requires(post): policycoreutils-python
-%endif
 BuildRequires: scl-utils-build
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -73,14 +71,14 @@ EOF
 # Simple copy of context from system root to DSC root.
 # In case new version needs some additional rules or context definition,
 # it needs to be solved.
-# Unfortunately, semanage does not have -e option in RHEL-5, so we have to
-# have its own policy for collection
-%if 0%{?rhel} >= 6
-    semanage fcontext -a -e / %{_scl_root} >/dev/null 2>&1 || :
-    semanage fcontext -a -e /etc/rc.d/init.d/mysqld /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
-    restorecon -R %{_scl_root} >/dev/null 2>&1 || :
-    restorecon /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
-%endif
+# Unfortunately, semanage does not have -e option in RHEL-5, so we would
+# have to have its own policy for collection (inspire in mysql55 package)
+for dir in `ls %{_scl_root}` ; do
+    semanage fcontext -a -e "/$dir" "%{_scl_root}/$dir" >/dev/null 2>&1 || :
+done
+semanage fcontext -a -e /etc/rc.d/init.d/mysqld /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
+restorecon -R %{_scl_root} >/dev/null 2>&1 || :
+restorecon /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
 
 %files
 
@@ -92,6 +90,10 @@ EOF
 %{_root_sysconfdir}/rpm/macros.%{scl}-config
 
 %changelog
+* Fri May  3 2013 Honza Horak <hhorak@redhat.com> 1-5
+- Run semanage for all directories separately, since it has
+  problems with definition for whole root
+
 * Thu May  2 2013 Honza Horak <hhorak@redhat.com> 1-4
 - Handle context of the init script
 - Add better descriptions for packages
