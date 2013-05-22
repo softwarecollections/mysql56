@@ -9,7 +9,6 @@ License: GPLv2+
 Group: Applications/File
 Requires: scl-utils
 Requires: %{scl_prefix}mariadb-server
-Requires(post): policycoreutils-python
 BuildRequires: scl-utils-build
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -24,6 +23,7 @@ Install this package if you want to use MariaDB 5.5 server on your system.
 Summary: Package that handles %scl Software Collection.
 Group: Applications/File
 Requires: scl-utils
+Requires(post): policycoreutils-python
 
 %description runtime
 Package shipping essential scripts to work with %scl Software Collection.
@@ -90,6 +90,7 @@ restorecon /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
 %changelog
 * Wed May 22 2013 Honza Horak <hhorak@redhat.com> 1-6
 - Run semanage on whole root, BZ#956981 is fixed now
+- Require semanage utility to be installed for -runtime package
 
 * Fri May  3 2013 Honza Horak <hhorak@redhat.com> 1-5
 - Run semanage for all directories separately, since it has
