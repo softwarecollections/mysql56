@@ -4,7 +4,7 @@
 Summary: Package that installs %scl
 Name: %scl_name
 Version: 1
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: GPLv2+
 Group: Applications/File
 Requires: scl-utils
@@ -73,9 +73,7 @@ EOF
 # it needs to be solved.
 # Unfortunately, semanage does not have -e option in RHEL-5, so we would
 # have to have its own policy for collection (inspire in mysql55 package)
-for dir in `ls %{_scl_root}` ; do
-    semanage fcontext -a -e "/$dir" "%{_scl_root}/$dir" >/dev/null 2>&1 || :
-done
+semanage fcontext -a -e / %{_scl_root} >/dev/null 2>&1 || :
 semanage fcontext -a -e /etc/rc.d/init.d/mysqld /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
 restorecon -R %{_scl_root} >/dev/null 2>&1 || :
 restorecon /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
@@ -90,6 +88,9 @@ restorecon /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
 %{_root_sysconfdir}/rpm/macros.%{scl}-config
 
 %changelog
+* Wed May 22 2013 Honza Horak <hhorak@redhat.com> 1-6
+- Run semanage on whole root, BZ#956981 is fixed now
+
 * Fri May  3 2013 Honza Horak <hhorak@redhat.com> 1-5
 - Run semanage for all directories separately, since it has
   problems with definition for whole root
