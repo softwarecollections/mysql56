@@ -52,7 +52,7 @@ cat >> %{buildroot}%{_scl_scripts}/enable << EOF
 export PATH=%{_bindir}\${PATH:+:\${PATH}}
 export LIBRARY_PATH=%{_libdir}\${LIBRARY_PATH:+:\${LIBRARY_PATH}}
 export LD_LIBRARY_PATH=%{_libdir}\${LD_LIBRARY_PATH:+:\${LD_LIBRARY_PATH}}
-export MANPATH=%{_mandir}\${MANPATH:+:\${MANPATH}}
+export MANPATH=%{_mandir}:${MANPATH}
 EOF
 
 cat >> %{buildroot}%{_scl_scripts}/service-environment << EOF
@@ -91,6 +91,8 @@ restorecon /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
 * Wed May 22 2013 Honza Horak <hhorak@redhat.com> 1-6
 - Run semanage on whole root, BZ#956981 is fixed now
 - Require semanage utility to be installed for -runtime package
+- Fix MANPATH definition, colon in the end is correct (it means default)
+  Resolves: BZ#966384
 
 * Fri May  3 2013 Honza Horak <hhorak@redhat.com> 1-5
 - Run semanage for all directories separately, since it has
