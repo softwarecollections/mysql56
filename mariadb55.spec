@@ -52,7 +52,7 @@ cat >> %{buildroot}%{_scl_scripts}/enable << EOF
 export PATH=%{_bindir}\${PATH:+:\${PATH}}
 export LIBRARY_PATH=%{_libdir}\${LIBRARY_PATH:+:\${LIBRARY_PATH}}
 export LD_LIBRARY_PATH=%{_libdir}\${LD_LIBRARY_PATH:+:\${LD_LIBRARY_PATH}}
-export MANPATH=%{_mandir}:${MANPATH}
+export MANPATH=%{_mandir}:\${MANPATH}
 EOF
 
 cat >> %{buildroot}%{_scl_scripts}/service-environment << EOF
