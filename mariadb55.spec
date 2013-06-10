@@ -76,8 +76,10 @@ EOF
 # have to have its own policy for collection (inspire in mysql55 package)
 semanage fcontext -a -e / %{_scl_root} >/dev/null 2>&1 || :
 semanage fcontext -a -e /etc/rc.d/init.d/mysqld /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
+semanage fcontext -a -e /var/log/mysqld.log /var/log/%{?scl_prefix}mysqld.log >/dev/null 2>&1 || :
 restorecon -R %{_scl_root} >/dev/null 2>&1 || :
 restorecon /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
+restorecon /var/log/%{?scl_prefix}mysqld.log >/dev/null 2>&1 || :
 
 %files
 
@@ -92,6 +94,8 @@ restorecon /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
 * Mon Jun 10 2013 Honza Horak <hhorak@redhat.com> 1-7
 - Add CPATH variable to enable script
   Resolves: #971808
+- Define and restore SELinux context of log file
+  Resolves: #971380
 
 * Wed May 22 2013 Honza Horak <hhorak@redhat.com> 1-6
 - Run semanage on whole root, BZ#956981 is fixed now
