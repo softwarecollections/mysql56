@@ -4,7 +4,7 @@
 Summary: Package that installs %scl
 Name: %scl_name
 Version: 1
-Release: 6%{?dist}
+Release: 7%{?dist}
 License: GPLv2+
 Group: Applications/File
 Requires: scl-utils
@@ -53,6 +53,7 @@ export PATH=%{_bindir}\${PATH:+:\${PATH}}
 export LIBRARY_PATH=%{_libdir}\${LIBRARY_PATH:+:\${LIBRARY_PATH}}
 export LD_LIBRARY_PATH=%{_libdir}\${LD_LIBRARY_PATH:+:\${LD_LIBRARY_PATH}}
 export MANPATH=%{_mandir}:\${MANPATH}
+export CPATH=%{_includedir}\${CPATH:+:\${CPATH}}
 EOF
 
 cat >> %{buildroot}%{_scl_scripts}/service-environment << EOF
@@ -88,6 +89,10 @@ restorecon /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
 %{_root_sysconfdir}/rpm/macros.%{scl}-config
 
 %changelog
+* Mon Jun 10 2013 Honza Horak <hhorak@redhat.com> 1-7
+- Add CPATH variable to enable script
+  Resolves: #971808
+
 * Wed May 22 2013 Honza Horak <hhorak@redhat.com> 1-6
 - Run semanage on whole root, BZ#956981 is fixed now
 - Require semanage utility to be installed for -runtime package
