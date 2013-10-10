@@ -4,7 +4,7 @@
 Summary: Package that installs %scl
 Name: %scl_name
 Version: 1
-Release: 7%{?dist}
+Release: 8%{?dist}
 License: GPLv2+
 Group: Applications/File
 Requires: scl-utils
@@ -91,6 +91,9 @@ restorecon /var/log/%{?scl_prefix}mysqld.log >/dev/null 2>&1 || :
 %{_root_sysconfdir}/rpm/macros.%{scl}-config
 
 %changelog
+* Thu Oct 10 2013 Honza Horak <hhorak@redhat.com> 1-8
+- Release bump for RHSCL-1.1
+
 * Mon Jun 10 2013 Honza Horak <hhorak@redhat.com> 1-7
 - Add CPATH variable to enable script
   Resolves: #971808
