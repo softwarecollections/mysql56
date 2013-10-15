@@ -4,7 +4,7 @@
 Summary: Package that installs %scl
 Name: %scl_name
 Version: 1
-Release: 8%{?dist}
+Release: 9%{?dist}
 License: GPLv2+
 Group: Applications/File
 Requires: scl-utils
@@ -61,9 +61,9 @@ cat >> %{buildroot}%{_scl_scripts}/service-environment << EOF
 # environment (like environment variable values). As a consequence,
 # information of all enabled collections will be lost during service start up.
 # If user needs to run a service under any software collection enabled, this
-# collection has to be written into MARIADB55_MYSQLD_SCLS_ENABLED variable in
+# collection has to be written into MARIADB55_SCLS_ENABLED variable in
 # /opt/rh/sclname/service-environment.
-MARIADB55_MYSQLD_SCLS_ENABLED="%{scl}"
+MARIADB55_SCLS_ENABLED="%{scl}"
 EOF
 
 %scl_install
@@ -91,6 +91,9 @@ restorecon /var/log/%{?scl_prefix}mysqld.log >/dev/null 2>&1 || :
 %{_root_sysconfdir}/rpm/macros.%{scl}-config
 
 %changelog
+* Tue Oct 15 2013 Honza Horak <hhorak@redhat.com> 1-9
+- Simplify environment variable name for enabled collections
+
 * Thu Oct 10 2013 Honza Horak <hhorak@redhat.com> 1-8
 - Release bump for RHSCL-1.1
 
