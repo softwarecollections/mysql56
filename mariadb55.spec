@@ -4,7 +4,7 @@
 Summary: Package that installs %scl
 Name: %scl_name
 Version: 1
-Release: 9%{?dist}
+Release: 10%{?dist}
 License: GPLv2+
 Group: Applications/File
 Requires: scl-utils
@@ -23,7 +23,7 @@ Install this package if you want to use MariaDB 5.5 server on your system.
 Summary: Package that handles %scl Software Collection.
 Group: Applications/File
 Requires: scl-utils
-Requires(post): policycoreutils-python
+Requires(post): policycoreutils libselinux-utils
 
 %description runtime
 Package shipping essential scripts to work with %scl Software Collection.
@@ -75,11 +75,10 @@ EOF
 # Unfortunately, semanage does not have -e option in RHEL-5, so we would
 # have to have its own policy for collection (inspire in mysql55 package)
 semanage fcontext -a -e / %{_scl_root} >/dev/null 2>&1 || :
-semanage fcontext -a -e /etc/rc.d/init.d/mysqld /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
 semanage fcontext -a -e /var/log/mysqld.log /var/log/%{?scl_prefix}mysqld.log >/dev/null 2>&1 || :
 restorecon -R %{_scl_root} >/dev/null 2>&1 || :
-restorecon /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
 restorecon /var/log/%{?scl_prefix}mysqld.log >/dev/null 2>&1 || :
+selinuxenabled && load_policy || :
 
 %files
 
@@ -91,6 +90,9 @@ restorecon /var/log/%{?scl_prefix}mysqld.log >/dev/null 2>&1 || :
 %{_root_sysconfdir}/rpm/macros.%{scl}-config
 
 %changelog
+* Fri Nov 22 2013 Honza Horak <hhorak@redhat.com> 1-10
+- Reload SELinux policy after setting it
+
 * Tue Oct 15 2013 Honza Horak <hhorak@redhat.com> 1-9
 - Simplify environment variable name for enabled collections
 
