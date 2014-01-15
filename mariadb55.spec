@@ -4,7 +4,7 @@
 Summary: Package that installs %scl
 Name: %scl_name
 Version: 1
-Release: 10%{?dist}
+Release: 11%{?dist}
 License: GPLv2+
 Group: Applications/File
 Requires: scl-utils
@@ -23,7 +23,7 @@ Install this package if you want to use MariaDB 5.5 server on your system.
 Summary: Package that handles %scl Software Collection.
 Group: Applications/File
 Requires: scl-utils
-Requires(post): policycoreutils libselinux-utils
+Requires(post): policycoreutils-python libselinux-utils
 
 %description runtime
 Package shipping essential scripts to work with %scl Software Collection.
@@ -90,6 +90,10 @@ selinuxenabled && load_policy || :
 %{_root_sysconfdir}/rpm/macros.%{scl}-config
 
 %changelog
+* Wed Jan 15 2014 Honza Horak <hhorak@redhat.com> - 1-11
+- Require policycoreutils-python for semanage
+  Resolves: #1053393
+
 * Fri Nov 22 2013 Honza Horak <hhorak@redhat.com> 1-10
 - Reload SELinux policy after setting it
 
