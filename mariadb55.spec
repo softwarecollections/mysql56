@@ -38,6 +38,7 @@ Package shipping essential scripts to work with %scl Software Collection.
 %package build
 Summary: Package shipping basic build configuration
 Group: Applications/File
+Requires: scl-utils-build
 
 %description build
 Package shipping essential configuration macros to build %scl Software
@@ -144,6 +145,8 @@ selinuxenabled && load_policy || :
   Resolves: #1061444
 - Add -scldevel subpackage
   Resolves: #1063352
+- Add scl-utils-build requirement to -build package
+  Resolves: #1058612
 
 * Wed Jan 15 2014 Honza Horak <hhorak@redhat.com> - 1-11
 - Require policycoreutils-python for semanage
