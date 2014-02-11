@@ -1,15 +1,20 @@
 %{!?scl:%global scl mariadb55}
 %scl_package %scl
 
+# do not produce empty debuginfo package
+%global debug_package %{nil}
+
 Summary: Package that installs %scl
 Name: %scl_name
-Version: 1
+Version: 1.1
 Release: 11%{?dist}
 License: GPLv2+
 Group: Applications/File
+Source0: README
+Source1: LICENSE
 Requires: scl-utils
 Requires: %{scl_prefix}mariadb-server
-BuildRequires: scl-utils-build
+BuildRequires: scl-utils-build help2man
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description
@@ -39,6 +44,26 @@ Collection or packages depending on %scl Software Collection.
 %prep
 %setup -c -T
 
+# This section generates README file from a template and creates man page
+# from that file, expanding RPM macros in the template file.
+cat >README <<'EOF'
+%{expand:%(cat %{SOURCE0})}
+EOF
+
+# copy the license file so %%files section sees it
+cp %{SOURCE1} .
+
+%build
+# generate a helper script that will be used by help2man
+cat >h2m_helper <<'EOF'
+#!/bin/bash
+[ "$1" == "--version" ] && echo "%{scl_name} %{version} Software Collection" || cat README
+EOF
+chmod a+x h2m_helper
+
+# generate the man page
+help2man -N --section 7 ./h2m_helper -o %{scl_name}.7
+
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_scl_scripts}/root
@@ -66,6 +91,10 @@ cat >> %{buildroot}%{_scl_scripts}/service-environment << EOF
 MARIADB55_SCLS_ENABLED="%{scl}"
 EOF
 
+# install generated man page
+mkdir -p %{buildroot}%{_mandir}/man7/
+install -m 644 %{scl_name}.7 %{buildroot}%{_mandir}/man7/%{scl_name}.7
+
 %scl_install
 
 %post runtime
@@ -83,13 +112,19 @@ selinuxenabled && load_policy || :
 %files
 
 %files runtime
+%doc README LICENSE
 %scl_files
 %config(noreplace) %{_scl_scripts}/service-environment
+%{_mandir}/man7/%{scl_name}.*
 
 %files build
 %{_root_sysconfdir}/rpm/macros.%{scl}-config
 
 %changelog
+* Tue Feb 11 2014 Honza Horak <hhorak@redhat.com> - 1.1-11
+- Add LICENSE, README and mariadb55.7 man page
+  Resolves: #1061444
+
 * Wed Jan 15 2014 Honza Horak <hhorak@redhat.com> - 1-11
 - Require policycoreutils-python for semanage
   Resolves: #1053393
