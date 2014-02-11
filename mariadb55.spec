@@ -1,4 +1,6 @@
-%{!?scl:%global scl mariadb55}
+%{!?scl_name_base: %global scl_name_base mariadb}
+%{!?scl_name_version: %global scl_name_version 55}
+%{!?scl:%global scl %{scl_name_base}%{scl_name_version}}
 %scl_package %scl
 
 # do not produce empty debuginfo package
@@ -41,6 +43,13 @@ Group: Applications/File
 Package shipping essential configuration macros to build %scl Software
 Collection or packages depending on %scl Software Collection.
 
+%package scldevel
+Summary: Package shipping development files for %scl
+
+%description scldevel
+Package shipping development files, especially usefull for development of
+packages depending on %scl Software Collection.
+
 %prep
 %setup -c -T
 
@@ -66,7 +75,8 @@ help2man -N --section 7 ./h2m_helper -o %{scl_name}.7
 
 %install
 rm -rf %{buildroot}
-mkdir -p %{buildroot}%{_scl_scripts}/root
+
+%scl_install
 
 # During the build of this package, we don't know which architecture it is 
 # going to be used on, so if we build on 64-bit system and use it on 32-bit, 
@@ -81,6 +91,13 @@ export MANPATH=%{_mandir}:\${MANPATH}
 export CPATH=%{_includedir}\${CPATH:+:\${CPATH}}
 EOF
 
+# generate rpm macros file for depended collections
+cat >> %{buildroot}%{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel << EOF
+%%scl_%{scl_name_base} %{scl}
+%%scl_prefix_%{scl_name_base} %{scl_prefix}
+EOF
+
+# generate a configuration file for daemon
 cat >> %{buildroot}%{_scl_scripts}/service-environment << EOF
 # Services are started in a fresh environment without any influence of user's
 # environment (like environment variable values). As a consequence,
@@ -94,8 +111,6 @@ EOF
 # install generated man page
 mkdir -p %{buildroot}%{_mandir}/man7/
 install -m 644 %{scl_name}.7 %{buildroot}%{_mandir}/man7/%{scl_name}.7
-
-%scl_install
 
 %post runtime
 # Simple copy of context from system root to DSC root.
@@ -120,10 +135,15 @@ selinuxenabled && load_policy || :
 %files build
 %{_root_sysconfdir}/rpm/macros.%{scl}-config
 
+%files scldevel
+%{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
+
 %changelog
 * Tue Feb 11 2014 Honza Horak <hhorak@redhat.com> - 1.1-11
 - Add LICENSE, README and mariadb55.7 man page
   Resolves: #1061444
+- Add -scldevel subpackage
+  Resolves: #1063352
 
 * Wed Jan 15 2014 Honza Horak <hhorak@redhat.com> - 1-11
 - Require policycoreutils-python for semanage
