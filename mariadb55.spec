@@ -120,8 +120,10 @@ install -m 644 %{scl_name}.7 %{buildroot}%{_mandir}/man7/%{scl_name}.7
 # Unfortunately, semanage does not have -e option in RHEL-5, so we would
 # have to have its own policy for collection (inspire in mysql55 package)
 semanage fcontext -a -e / %{_scl_root} >/dev/null 2>&1 || :
+semanage fcontext -a -e /etc/rc.d/init.d/mysqld /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
 semanage fcontext -a -e /var/log/mysqld.log /var/log/%{?scl_prefix}mysqld.log >/dev/null 2>&1 || :
 restorecon -R %{_scl_root} >/dev/null 2>&1 || :
+restorecon /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
 restorecon /var/log/%{?scl_prefix}mysqld.log >/dev/null 2>&1 || :
 selinuxenabled && load_policy || :
 
