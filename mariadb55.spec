@@ -9,7 +9,7 @@
 Summary: Package that installs %scl
 Name: %scl_name
 Version: 1.1
-Release: 11%{?dist}
+Release: 12%{?dist}
 License: GPLv2+
 Group: Applications/File
 Source0: README
@@ -142,6 +142,10 @@ selinuxenabled && load_policy || :
 %{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
 
 %changelog
+* Wed Feb 12 2014 Honza Horak <hhorak@redhat.com> - 1.1-12
+- Fix some grammar mistakes in README
+  Related: #1061444
+
 * Tue Feb 11 2014 Honza Horak <hhorak@redhat.com> - 1.1-11
 - Add LICENSE, README and mariadb55.7 man page
   Resolves: #1061444

@@ -1,7 +1,8 @@
-Package %{scl_name} provides MariaDB 5.5 database delivered using Software
-Collections technology. For more information about Software Collections
-concept, read scl(1). By installing %{scl_name} collection, you will get
-the minimum working set of packages to have working MariaDB server.
+Package %{scl_name} provides MariaDB database server delivered as a Software
+Collection. For more information about Software Collections,
+see the scl(1) man page. By installing the %{scl_name} collection,
+you will get the minimum working set of packages to have a working
+MariaDB database server.
 
 %if 0%{rhel} >= 7
 Usage: systemctl start %{?scl_prefix}mysqld
@@ -9,10 +10,10 @@ Usage: systemctl start %{?scl_prefix}mysqld
 Usage: service %{?scl_prefix}mysqld start
 %endif
 
-Software Collections concept allows to build and execute applications
-which are not located in the filesystem root hierarchy but are present
-in an alternative location, which is %{scl_prefix}
-in case of %{scl_name} collection.
+Software Collections allow you to build and execute applications
+which are not located in the filesystem root hierarchy,
+but are stored in an alternative location, which is %{scl_prefix}
+in case of the %{scl_name} collection.
 
 MariaDB is a multi-user, multi-threaded SQL database server. It is a
 client/server implementation consisting of a server daemon (mysqld)
@@ -20,27 +21,28 @@ and many different client programs and libraries. This package contains
 the MariaDB server and some accompanying files and directories.
 MariaDB is a community developed branch of MySQL.
 
-When working with %{scl_name} collection, use scl utility (see scl(1)
-for usage) to enable scl environment properly. The only exception is
-starting/stopping %{?scl_prefix}mysqld daemon, where scl environment
-is enabled implicitely within the SysV init script or systemd unit file.
+When you want to work with the %{scl_name} collection, use the scl
+utility (see the scl(1) man page for usage) to enable the scl
+environment. The only exception is starting and stopping
+%{?scl_prefix}mysqld daemon, where scl environment is enabled
+implicitely within the SysV init script or systemd unit file.
 
-Configuration for the %{scl_name} software collection is located under
-%{_sysconfdir}
+Configuration for the %{scl_name} software collection is located
+under %{_sysconfdir}.
 
 MariaDB server listens on network soket (by default port 3306) and unix socket
 (by default /var/lib/mysql/mysql.sock).
 
 Examples:
 scl enable %{scl_name} 'command --arg'
-  Run a specific command with argument --arg within %{scl_name} software collections
-  environment.
+  Run a specific command with the argument --arg within the %{scl_name}
+  software collections environment.
 
 scl enable %{scl_name} 'mysql -u root -p'
-  Run mysql shell from %{scl_name} software collection.
+  Run mysql shell from the %{scl_name} software collection.
 
 scl enable %{scl_name} bash
-  Run interactive shell where %{scl_name} software collection is enabled.
+  Run an interactive shell with the %{scl_name} software collection enabled.
 
 %if 0%{rhel} >= 7
 systemctl start %{?scl_prefix}mysqld 
@@ -50,8 +52,8 @@ service %{?scl_prefix}mysqld start
     Starts the MariaDB server from %{scl_name} software collection.
 
 scl enable %{scl_name} 'man mysql'
-  Show man pages for mysql command, which is part of the %{scl_name} software
-  collection.
+  Show man pages for the mysql command, which is a part of the
+  %{scl_name} software collection.
 
 Files:
 {_scl_scripts}/service-environment
