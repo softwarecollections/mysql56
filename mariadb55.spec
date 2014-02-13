@@ -9,7 +9,7 @@
 Summary: Package that installs %scl
 Name: %scl_name
 Version: 1.1
-Release: 12%{?dist}
+Release: 13%{?dist}
 License: GPLv2+
 Group: Applications/File
 Source0: README
@@ -70,7 +70,6 @@ cat >h2m_helper <<'EOF'
 [ "$1" == "--version" ] && echo "%{scl_name} %{version} Software Collection" || cat README
 EOF
 chmod a+x h2m_helper
-
 # generate the man page
 help2man -N --section 7 ./h2m_helper -o %{scl_name}.7
 
@@ -122,9 +121,11 @@ install -m 644 %{scl_name}.7 %{buildroot}%{_mandir}/man7/%{scl_name}.7
 semanage fcontext -a -e / %{_scl_root} >/dev/null 2>&1 || :
 semanage fcontext -a -e /etc/rc.d/init.d/mysqld /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
 semanage fcontext -a -e /var/log/mysqld.log /var/log/%{?scl_prefix}mysqld.log >/dev/null 2>&1 || :
+semanage fcontext -a -e /var/log/mariadb /var/log/%{?scl_prefix}mariadb >/dev/null 2>&1 || :
 restorecon -R %{_scl_root} >/dev/null 2>&1 || :
 restorecon /etc/rc.d/init.d/%{scl_prefix}mysqld >/dev/null 2>&1 || :
 restorecon /var/log/%{?scl_prefix}mysqld.log >/dev/null 2>&1 || :
+restorecon /var/log/%{?scl_prefix}mariadb >/dev/null 2>&1 || :
 selinuxenabled && load_policy || :
 
 %files
@@ -142,6 +143,10 @@ selinuxenabled && load_policy || :
 %{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
 
 %changelog
+* Thu Feb 13 2014 Honza Horak <hhorak@redhat.com> - 1.1-13
+- Define context for RHEL-7 log file location
+  Related: #1007861
+
 * Wed Feb 12 2014 Honza Horak <hhorak@redhat.com> - 1.1-12
 - Fix some grammar mistakes in README
   Related: #1061444
