@@ -5,7 +5,7 @@ you will get the minimum working set of packages to have a working
 MariaDB database server.
 
 %if 0%{rhel} >= 7
-Usage: systemctl start %{?scl_prefix}mysqld
+Usage: systemctl start %{?scl_prefix}mariadb
 %else
 Usage: service %{?scl_prefix}mysqld start
 %endif
@@ -45,7 +45,7 @@ scl enable %{scl_name} bash
   Run an interactive shell with the %{scl_name} software collection enabled.
 
 %if 0%{rhel} >= 7
-systemctl start %{?scl_prefix}mysqld 
+systemctl start %{?scl_prefix}mariadb
 %else
 service %{?scl_prefix}mysqld start
 %endif
@@ -56,7 +56,7 @@ scl enable %{scl_name} 'man mysql'
   %{scl_name} software collection.
 
 Files:
-{_scl_scripts}/service-environment
+%{_scl_scripts}/service-environment
 Define which software collections should be enabled for the daemon process.
 
 Report bugs to <http://bugzilla.redhat.com>.

@@ -9,7 +9,7 @@
 Summary: Package that installs %scl
 Name: %scl_name
 Version: 1.1
-Release: 13%{?dist}
+Release: 14%{?dist}
 License: GPLv2+
 Group: Applications/File
 Source0: README
@@ -143,6 +143,10 @@ selinuxenabled && load_policy || :
 %{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
 
 %changelog
+* Wed Mar 26 2014 Jan Stanek <jstanek@redhat.com> - 1.1-14
+- Fixed incorrect serveice name and unexpanded macro in README
+  Resolves: #1079973 #1072482
+
 * Thu Feb 13 2014 Honza Horak <hhorak@redhat.com> - 1.1-13
 - Define context for RHEL-7 log file location
   Related: #1007861
