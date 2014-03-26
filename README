@@ -12,7 +12,7 @@ Usage: service %{?scl_prefix}mysqld start
 
 Software Collections allow you to build and execute applications
 which are not located in the filesystem root hierarchy,
-but are stored in an alternative location, which is %{scl_prefix}
+but are stored in an alternative location, which is %{_scl_root}
 in case of the %{scl_name} collection.
 
 MariaDB is a multi-user, multi-threaded SQL database server. It is a

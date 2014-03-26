@@ -9,7 +9,7 @@
 Summary: Package that installs %scl
 Name: %scl_name
 Version: 1.1
-Release: 14%{?dist}
+Release: 15%{?dist}
 License: GPLv2+
 Group: Applications/File
 Source0: README
@@ -143,6 +143,10 @@ selinuxenabled && load_policy || :
 %{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
 
 %changelog
+* Wed Mar 26 2014 Jan Stanek <jstanek@redhat.com> - 1.1-15
+- Wrong macro in README
+  Related: #1072482
+
 * Wed Mar 26 2014 Jan Stanek <jstanek@redhat.com> - 1.1-14
 - Fixed incorrect serveice name and unexpanded macro in README
   Resolves: #1079973 #1072482
