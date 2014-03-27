@@ -9,7 +9,7 @@
 Summary: Package that installs %scl
 Name: %scl_name
 Version: 1.1
-Release: 13%{?dist}
+Release: 15%{?dist}
 License: GPLv2+
 Group: Applications/File
 Source0: README
@@ -78,6 +78,13 @@ rm -rf %{buildroot}
 
 %scl_install
 
+# create and own dirs not covered by %%scl_install and %%scl_files
+%if 0%{?rhel} <= 6
+mkdir -p %{buildroot}%{_datadir}/aclocal
+%else
+mkdir -p %{buildroot}%{_mandir}/man{1,7,8}
+%endif
+
 # During the build of this package, we don't know which architecture it is 
 # going to be used on, so if we build on 64-bit system and use it on 32-bit, 
 # the %{_libdir} would stay expanded to '.../lib64'. This way we determine 
@@ -133,6 +140,11 @@ selinuxenabled && load_policy || :
 %files runtime
 %doc README LICENSE
 %scl_files
+%if 0%{?rhel} <= 6
+%{_datadir}/aclocal
+%else
+%{_mandir}/man*
+%endif
 %config(noreplace) %{_scl_scripts}/service-environment
 %{_mandir}/man7/%{scl_name}.*
 
@@ -143,6 +155,10 @@ selinuxenabled && load_policy || :
 %{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
 
 %changelog
+* Thu Mar 27 2014 Honza Horak <hhorak@redhat.com> - 1.1-15
+- Own all dirs properly
+  Resolves: #1079913
+
 * Thu Feb 13 2014 Honza Horak <hhorak@redhat.com> - 1.1-13
 - Define context for RHEL-7 log file location
   Related: #1007861
