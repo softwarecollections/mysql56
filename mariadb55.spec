@@ -9,7 +9,7 @@
 Summary: Package that installs %scl
 Name: %scl_name
 Version: 1.1
-Release: 16%{?dist}
+Release: 17%{?dist}
 License: GPLv2+
 Group: Applications/File
 Source0: README
@@ -149,12 +149,17 @@ selinuxenabled && load_policy || :
 %{_mandir}/man7/%{scl_name}.*
 
 %files build
+%doc LICENSE
 %{_root_sysconfdir}/rpm/macros.%{scl}-config
 
 %files scldevel
 %{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
 
 %changelog
+* Fri Mar 28 2014 Honza Horak <hhorak@redhat.com> - 1.1-17
+- Include LICENSE also in -build package
+  Related: #1072482
+
 * Thu Mar 27 2014 Honza Horak <hhorak@redhat.com> - 1.1-16
 - Own all dirs properly
   Resolves: #1079913
