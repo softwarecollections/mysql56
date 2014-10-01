@@ -1,10 +1,10 @@
-Package %{scl_name} provides MariaDB database server delivered as a Software
+Package %{?scl_name} provides MariaDB database server delivered as a Software
 Collection. For more information about Software Collections,
-see the scl(1) man page. By installing the %{scl_name} collection,
+see the scl(1) man page. By installing the %{?scl_name} collection,
 you will get the minimum working set of packages to have a working
 MariaDB database server.
 
-%if 0%{rhel} >= 7
+%if 0%{?rhel} >= 7 || 0%{?fedora} >= 15
 Usage: systemctl start %{?scl_prefix}mariadb
 %else
 Usage: service %{?scl_prefix}mysqld start
@@ -13,7 +13,7 @@ Usage: service %{?scl_prefix}mysqld start
 Software Collections allow you to build and execute applications
 which are not located in the filesystem root hierarchy,
 but are stored in an alternative location, which is %{_scl_root}
-in case of the %{scl_name} collection.
+in case of the %{?scl_name} collection.
 
 MariaDB is a multi-user, multi-threaded SQL database server. It is a
 client/server implementation consisting of a server daemon (mysqld)
@@ -21,39 +21,39 @@ and many different client programs and libraries. This package contains
 the MariaDB server and some accompanying files and directories.
 MariaDB is a community developed branch of MySQL.
 
-When you want to work with the %{scl_name} collection, use the scl
+When you want to work with the %{?scl_name} collection, use the scl
 utility (see the scl(1) man page for usage) to enable the scl
 environment. The only exception is starting and stopping
 %{?scl_prefix}mysqld daemon, where scl environment is enabled
 implicitely within the SysV init script or systemd unit file.
 
-Configuration for the %{scl_name} software collection is located
+Configuration for the %{?scl_name} software collection is located
 under %{_sysconfdir}.
 
 MariaDB server listens on network soket (by default port 3306) and unix socket
 (by default /var/lib/mysql/mysql.sock).
 
 Examples:
-scl enable %{scl_name} 'command --arg'
-  Run a specific command with the argument --arg within the %{scl_name}
+scl enable %{?scl_name} 'command --arg'
+  Run a specific command with the argument --arg within the %{?scl_name}
   software collections environment.
 
-scl enable %{scl_name} 'mysql -u root -p'
-  Run mysql shell from the %{scl_name} software collection.
+scl enable %{?scl_name} 'mysql -u root -p'
+  Run mysql shell from the %{?scl_name} software collection.
 
-scl enable %{scl_name} bash
-  Run an interactive shell with the %{scl_name} software collection enabled.
+scl enable %{?scl_name} bash
+  Run an interactive shell with the %{?scl_name} software collection enabled.
 
-%if 0%{rhel} >= 7
+%if 0%{?rhel} >= 7 || 0%{?fedora} >= 15
 systemctl start %{?scl_prefix}mariadb
 %else
 service %{?scl_prefix}mysqld start
 %endif
-    Starts the MariaDB server from %{scl_name} software collection.
+    Starts the MariaDB server from %{?scl_name} software collection.
 
-scl enable %{scl_name} 'man mysql'
+scl enable %{?scl_name} 'man mysql'
   Show man pages for the mysql command, which is a part of the
-  %{scl_name} software collection.
+  %{?scl_name} software collection.
 
 Files:
 %{_scl_scripts}/service-environment
