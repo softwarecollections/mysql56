@@ -9,7 +9,7 @@
 Summary: Package that installs %{scl}
 Name: %{?scl_name}%{!?scl_name:%scl}
 Version: 1.1
-Release: 18%{?dist}
+Release: 19%{?dist}
 License: GPLv2+
 Group: Applications/File
 Source0: README
@@ -73,8 +73,6 @@ chmod a+x h2m_helper
 help2man -N --section 7 ./h2m_helper -o %{?scl_name}.7
 
 %install
-rm -rf %{buildroot}
-
 %{?scl_install}
 
 # create and own dirs not covered by %%scl_install and %%scl_files
@@ -84,11 +82,7 @@ mkdir -p %{buildroot}%{_datadir}/aclocal
 mkdir -p %{buildroot}%{_mandir}/man{1,7,8}
 %endif
 
-# During the build of this package, we don't know which architecture it is 
-# going to be used on, so if we build on 64-bit system and use it on 32-bit, 
-# the %{_libdir} would stay expanded to '.../lib64'. This way we determine 
-# architecture everytime the 'scl enable ...' is run and set the 
-# LD_LIBRARY_PATH accordingly
+# create enable scriptlet that sets correct environment for collection
 cat >> %{buildroot}%{?_scl_scripts}/enable << EOF
 export PATH=%{_bindir}\${PATH:+:\${PATH}}
 export LIBRARY_PATH=%{_libdir}\${LIBRARY_PATH:+:\${LIBRARY_PATH}}
@@ -155,6 +149,9 @@ selinuxenabled && load_policy || :
 %{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
 
 %changelog
+* Tue Nov 25 2014 Honza Horak <hhorak@redhat.com> - 1.1-19
+- Remove unncessary comment and buildroot cleanup
+
 * Wed Oct 01 2014 Honza Horak <hhorak@redhat.com> - 1.1-18
 - Make spec readable without scl-utils-build installed
 
