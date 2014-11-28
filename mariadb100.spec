@@ -1,5 +1,5 @@
 %{!?scl_name_base: %global scl_name_base mariadb}
-%{!?scl_name_version: %global scl_name_version 55}
+%{!?scl_name_version: %global scl_name_version 100}
 %{!?scl:%global scl %{scl_name_base}%{scl_name_version}}
 %{?scl_package:%scl_package %scl}
 
@@ -8,8 +8,8 @@
 
 Summary: Package that installs %{scl}
 Name: %{?scl_name}%{!?scl_name:%scl}
-Version: 1.1
-Release: 19%{?dist}
+Version: 2.0
+Release: 1%{?dist}
 License: GPLv2+
 Group: Applications/File
 Source0: README
@@ -20,10 +20,10 @@ BuildRequires: scl-utils-build help2man
 
 %description
 This is the main package for %{scl} Software Collection, which installs
-necessary packages to use MariaDB 5.5 server, a community developed branch
+necessary packages to use MariaDB 10.0 server, a community developed branch
 of MySQL. Software Collections allow to install more versions of the same
 package by using alternative directory structure.
-Install this package if you want to use MariaDB 5.5 server on your system.
+Install this package if you want to use MariaDB 10.0 server on your system.
 
 %package runtime
 Summary: Package that handles %{scl} Software Collection.
@@ -149,6 +149,9 @@ selinuxenabled && load_policy || :
 %{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
 
 %changelog
+* Fri Nov 28 2014 Honza Horak <hhorak@redhat.com> - 2.0-1
+- Adjust for MariaDB 10.0
+
 * Tue Nov 25 2014 Honza Horak <hhorak@redhat.com> - 1.1-19
 - Remove unncessary comment and buildroot cleanup
 
