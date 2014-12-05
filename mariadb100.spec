@@ -1,15 +1,50 @@
+# Define SCL name
 %{!?scl_name_base: %global scl_name_base mariadb}
-%{!?scl_name_version: %global scl_name_version 100}
-%{!?scl:%global scl %{scl_name_base}%{scl_name_version}}
+%{!?version_major: %global version_major 10}
+%{!?version_minor: %global version_minor 0}
+%{!?scl_name_version: %global scl_name_version %{version_major}%{version_minor}}
+%{!?scl: %global scl %{scl_name_base}%{scl_name_version}}
+
+# Turn on new layout -- prefix for packages and location
+# for config and variable files
+# This must be before calling %%scl_package
+%{!?nfsmountable: %global nfsmountable 1}
+%{!?scl_vendor_in_name: %global scl_vendor_in_name 1}
+
+# Define SCL macros
 %{?scl_package:%scl_package %scl}
+
+# Define where to get propper SELinux context
+# and define names and locations specific for the whole collection
+%global selinux_config_source %{?_root_sysconfdir}/my.cnf
+%global daemonname %{?scl:%{scl}-}mariadb
+%if 0%{?rhel} >= 7 || 0%{?fedora} >= 15
+%global selinux_daemon_source %{_unitdir}/mariadb
+%global selinux_log_source %{?_root_localstatedir}/log/mariadb
+%global daemondir %{_unitdir}
+%else
+%global selinux_daemon_source %{_initddir}/mysqld
+%global selinux_log_source %{?_root_localstatedir}/log/mysql
+%global daemondir %{_initddir}
+%endif
+%if 0%{?nfsmountable:1}
+%global logfiledir %{_localstatedir}/log/mariadb
+%global dbdatadir %{_localstatedir}/lib/mysql
+%else
+%global logfiledir %{?_root_localstatedir}/log/%{?scl_prefix}mariadb
+%global dbdatadir %{?_scl_root}/var/lib/mysql
+%endif
 
 # do not produce empty debuginfo package
 %global debug_package %{nil}
 
 Summary: Package that installs %{scl}
-Name: %{?scl_name}%{!?scl_name:%scl}
+# use %%scl_meta_name as resulting package name
+# if %%scl_meta_name is not defined then use %%scl_name
+# if %%scl_name is also not defined then use %%scl defined above
+Name: %{?scl_meta_name}%{!?scl_meta_name:%{?scl_name}%{!?scl_name:%scl}}
 Version: 2.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv2+
 Group: Applications/File
 Source0: README
@@ -20,10 +55,10 @@ BuildRequires: scl-utils-build help2man
 
 %description
 This is the main package for %{scl} Software Collection, which installs
-necessary packages to use MariaDB 10.0 server, a community developed branch
+necessary packages to use MariaDB %{version_major}.%{version_minor} server, a community developed branch
 of MySQL. Software Collections allow to install more versions of the same
 package by using alternative directory structure.
-Install this package if you want to use MariaDB 10.0 server on your system.
+Install this package if you want to use MariaDB %{version_major}.%{version_minor} server on your system.
 
 %package runtime
 Summary: Package that handles %{scl} Software Collection.
@@ -76,19 +111,39 @@ help2man -N --section 7 ./h2m_helper -o %{?scl_name}.7
 %{?scl_install}
 
 # create and own dirs not covered by %%scl_install and %%scl_files
-%if 0%{?rhel} <= 6
-mkdir -p %{buildroot}%{_datadir}/aclocal
-%else
+%if 0%{?rhel} >= 7 || 0%{?fedora} >= 15
 mkdir -p %{buildroot}%{_mandir}/man{1,7,8}
+%else
+mkdir -p %{buildroot}%{_datadir}/aclocal
 %endif
 
 # create enable scriptlet that sets correct environment for collection
 cat >> %{buildroot}%{?_scl_scripts}/enable << EOF
-export PATH=%{_bindir}\${PATH:+:\${PATH}}
-export LIBRARY_PATH=%{_libdir}\${LIBRARY_PATH:+:\${LIBRARY_PATH}}
-export LD_LIBRARY_PATH=%{_libdir}\${LD_LIBRARY_PATH:+:\${LD_LIBRARY_PATH}}
-export MANPATH=%{_mandir}:\${MANPATH}
-export CPATH=%{_includedir}\${CPATH:+:\${CPATH}}
+# For binaries
+export PATH="%{_bindir}\${PATH:+:\${PATH}}"
+# For header files
+export CPATH="%{_includedir}\${CPATH:+:\${CPATH}}"
+# For libraries during build
+export LIBRARY_PATH="%{_libdir}\${LIBRARY_PATH:+:\${LIBRARY_PATH}}"
+# For libraries during linking
+export LD_LIBRARY_PATH="%{_libdir}\${LD_LIBRARY_PATH:+:\${LD_LIBRARY_PATH}}"
+# For man pages; empty field makes man to consider also standard path
+export MANPATH="%{_mandir}:\${MANPATH}"
+# For Java Packages Tools to locate java.conf
+export JAVACONFDIRS="%{_sysconfdir}/java:\${JAVACONFDIRS:-/etc/java}"
+# For XMvn to locate its configuration file(s)
+export XDG_CONFIG_DIRS="%{_sysconfdir}/xdg:\${XDG_CONFIG_DIRS:-/etc/xdg}"
+# For systemtap
+export XDG_DATA_DIRS="%{_datadir}\${XDG_DATA_DIRS:+:\${XDG_DATA_DIRS}}"
+# For pkg-config
+export PKG_CONFIG_PATH="%{_libdir}/pkgconfig\${PKG_CONFIG_PATH:+:\${PKG_CONFIG_PATH}}"
+EOF
+
+# define configuration and variable files location for whole collection
+cat >> %{buildroot}%{_root_sysconfdir}/rpm/macros.%{scl}-config << EOF
+%%scl_mariadb_daemonname %{daemonname}
+%%scl_mariadb_logfiledir %{logfiledir}
+%%scl_mariadb_dbdatadir %{dbdatadir}
 EOF
 
 # generate rpm macros file for depended collections
@@ -113,31 +168,32 @@ mkdir -p %{buildroot}%{_mandir}/man7/
 install -m 644 %{?scl_name}.7 %{buildroot}%{_mandir}/man7/%{?scl_name}.7
 
 %post runtime
-# Simple copy of context from system root to DSC root.
+# Simple copy of context from system root to SCL root.
 # In case new version needs some additional rules or context definition,
-# it needs to be solved.
-# Unfortunately, semanage does not have -e option in RHEL-5, so we would
-# have to have its own policy for collection (inspire in mysql%{scl_name_version} package)
+# it needs to be solved in base system.
+# semanage does not have -e option in RHEL-5, so we would
+# have to have its own policy for collection.
 semanage fcontext -a -e / %{?_scl_root} >/dev/null 2>&1 || :
-semanage fcontext -a -e %{_initddir}/mysqld %{_initddir}/%{?scl_prefix}mysqld >/dev/null 2>&1 || :
-semanage fcontext -a -e /var/log/mysqld.log /var/log/%{?scl_prefix}mysqld.log >/dev/null 2>&1 || :
-semanage fcontext -a -e %{?_root_localstatedir}/log/mariadb %{?_root_localstatedir}/log/%{?scl_prefix}mariadb >/dev/null 2>&1 || :
+semanage fcontext -a -e %{selinux_config_source} %{_sysconfdir}/my.cnf >/dev/null 2>&1 || :
+semanage fcontext -a -e %{selinux_config_source} %{_sysconfdir}/my.cnf.d >/dev/null 2>&1 || :
+semanage fcontext -a -e %{selinux_log_source} %{logfiledir} >/dev/null 2>&1 || :
+semanage fcontext -a -e %{selinux_daemon_source} %{daemondir}/%{daemonname} >/dev/null 2>&1 || :
 restorecon -R %{?_scl_root} >/dev/null 2>&1 || :
-restorecon %{_initddir}/%{?scl_prefix}mysqld >/dev/null 2>&1 || :
-restorecon %{?_root_localstatedir}/log/%{?scl_prefix}mysqld.log >/dev/null 2>&1 || :
-restorecon %{?_root_localstatedir}/log/%{?scl_prefix}mariadb >/dev/null 2>&1 || :
+restorecon -R %{_sysconfdir} >/dev/null 2>&1 || :
+restorecon -R %{logfiledir} >/dev/null 2>&1 || :
+restorecon %{daemondir}/%{daemonname} >/dev/null 2>&1 || :
 selinuxenabled && load_policy || :
 
 %files
 
+%if 0%{?rhel} >= 7 || 0%{?fedora} >= 15
+%files runtime -f filesystem
+%else
 %files runtime
+%{_datadir}/aclocal
+%endif
 %doc README LICENSE
 %{?scl_files}
-%if 0%{?rhel} <= 6
-%{_datadir}/aclocal
-%else
-%{_mandir}/man*
-%endif
 %config(noreplace) %{?_scl_scripts}/service-environment
 %{_mandir}/man7/%{?scl_name}.*
 
@@ -146,9 +202,14 @@ selinuxenabled && load_policy || :
 %{_root_sysconfdir}/rpm/macros.%{scl}-config
 
 %files scldevel
+%doc LICENSE
 %{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
 
 %changelog
+* Fri Dec 05 2014 Honza Horak <hhorak@redhat.com> - 2.0-2
+- Rework macros specification
+  Specify macros that can be used in other packages in the collection
+
 * Fri Nov 28 2014 Honza Horak <hhorak@redhat.com> - 2.0-1
 - Adjust for MariaDB 10.0
 
