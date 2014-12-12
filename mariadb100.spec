@@ -42,7 +42,7 @@ Summary: Package that installs %{scl}
 # use %%scl_meta_name as resulting package name
 # if %%scl_meta_name is not defined then use %%scl_name
 # if %%scl_name is also not defined then use %%scl defined above
-Name: %{?scl_meta_name}%{!?scl_meta_name:%{?scl_name}%{!?scl_name:%scl}}
+Name: %{?scl_meta_name}%{!?scl_meta_name:%scl}
 Version: 2.0
 Release: 2%{?dist}
 License: GPLv2+
@@ -50,7 +50,7 @@ Group: Applications/File
 Source0: README
 Source1: LICENSE
 Requires: scl-utils
-Requires: %{?scl_prefix}mariadb-server
+Requires: %{?scl_pkg_prefix}mariadb-server
 BuildRequires: scl-utils-build help2man
 
 %description
