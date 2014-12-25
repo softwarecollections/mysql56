@@ -1,5 +1,5 @@
 # Define SCL name
-%{!?scl_name_base: %global scl_name_base mariadb}
+%{!?scl_name_base: %global scl_name_base %{scl_vendor}-mariadb}
 %{!?version_major: %global version_major 10}
 %{!?version_minor: %global version_minor 0}
 %{!?scl_name_version: %global scl_name_version %{version_major}%{version_minor}}
@@ -9,7 +9,6 @@
 # for config and variable files
 # This must be before calling %%scl_package
 %{!?nfsmountable: %global nfsmountable 1}
-%{!?scl_vendor_in_name: %global scl_vendor_in_name 1}
 
 # Define SCL macros
 %{?scl_package:%scl_package %scl}
