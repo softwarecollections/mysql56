@@ -5,7 +5,7 @@
 %{!?version_minor: %global version_minor 6}
 %{!?scl_name_version: %global scl_name_version %{version_major}%{version_minor}}
 %{!?scl: %global scl %{scl_name_prefix}%{scl_name_base}%{scl_name_version}}
-%{%global scl_name_base_upper %{lua:print(string.upper(rpm.expand("%{scl_name_base}")))}}
+%global scl_name_base_upper %{lua:print(string.upper(rpm.expand("%{scl_name_base}")))}
 
 # Turn on new layout -- prefix for packages and location
 # for config and variable files
