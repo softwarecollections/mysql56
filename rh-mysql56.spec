@@ -1,9 +1,11 @@
 # Define SCL name
-%{!?scl_name_base: %global scl_name_base %{scl_vendor}-mysql}
-%{!?version_major: %global version_major 10}
-%{!?version_minor: %global version_minor 0}
+%{!?scl_name_prefix: %global scl_name_prefix rh-}
+%{!?scl_name_base: %global scl_name_base mysql}
+%{!?version_major: %global version_major 5}
+%{!?version_minor: %global version_minor 6}
 %{!?scl_name_version: %global scl_name_version %{version_major}%{version_minor}}
-%{!?scl: %global scl %{scl_name_base}%{scl_name_version}}
+%{!?scl: %global scl %{scl_name_prefix}%{scl_name_base}%{scl_name_version}}
+%{%global scl_name_base_upper %{lua:print(string.upper(rpm.expand("%{scl_name_base}")))}}
 
 # Turn on new layout -- prefix for packages and location
 # for config and variable files
@@ -16,7 +18,7 @@
 # Define where to get propper SELinux context
 # and define names and locations specific for the whole collection
 %global selinux_config_source %{?_root_sysconfdir}/my.cnf
-%global daemonname %{?scl:%{scl}-}mysqld
+%global daemonname %{?scl_prefix}mysqld
 %global selinux_log_source %{?_root_localstatedir}/log/mysql
 %if 0%{?rhel} >= 7 || 0%{?fedora} >= 15
 %global selinux_daemon_source %{_unitdir}/mysqld
@@ -37,18 +39,15 @@
 %global debug_package %{nil}
 
 Summary: Package that installs %{scl}
-# use %%scl_meta_name as resulting package name
-# if %%scl_meta_name is not defined then use %%scl_name
-# if %%scl_name is also not defined then use %%scl defined above
-Name: %{?scl_meta_name}%{!?scl_meta_name:%scl}
+Name: %{scl}
 Version: 2.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: GPLv2+
 Group: Applications/File
 Source0: README
 Source1: LICENSE
 Requires: scl-utils
-Requires: %{?scl_pkg_prefix}mysql-server
+Requires: %{?scl_prefix}mysql-server
 BuildRequires: scl-utils-build help2man
 
 %description
@@ -139,9 +138,9 @@ EOF
 
 # define configuration and variable files location for whole collection
 cat >> %{buildroot}%{_root_sysconfdir}/rpm/macros.%{scl}-config << EOF
-%%scl_mysql_daemonname %{daemonname}
-%%scl_mysql_logfiledir %{logfiledir}
-%%scl_mysql_dbdatadir %{dbdatadir}
+%%scl_%{scl_name_base}_daemonname %{daemonname}
+%%scl_%{scl_name_base}_logfiledir %{logfiledir}
+%%scl_%{scl_name_base}_dbdatadir %{dbdatadir}
 EOF
 
 # generate rpm macros file for depended collections
@@ -156,9 +155,10 @@ cat >> %{buildroot}%{?_scl_scripts}/service-environment << EOF
 # environment (like environment variable values). As a consequence,
 # information of all enabled collections will be lost during service start up.
 # If user needs to run a service under any software collection enabled, this
-# collection has to be written into MYSQL%{scl_name_version}_SCLS_ENABLED variable in
+# collection has to be written into %{scl_name_base_upper}\
+%{scl_name_version}_SCLS_ENABLED variable in
 # /opt/rh/sclname/service-environment.
-MYSQL%{scl_name_version}_SCLS_ENABLED="%{scl}"
+%{scl_name_base_upper}%{scl_name_version}_SCLS_ENABLED="%{scl}"
 EOF
 
 # install generated man page
@@ -204,6 +204,9 @@ selinuxenabled && load_policy || :
 %{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
 
 %changelog
+* Fri Jan 09 2015 Honza Horak <hhorak@redhat.com> - 2.0-3
+- Change prefix handling
+
 * Fri Dec 05 2014 Honza Horak <hhorak@redhat.com> - 2.0-2
 - Rework macros specification
   Specify macros that can be used in other packages in the collection
