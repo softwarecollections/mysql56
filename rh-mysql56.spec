@@ -41,7 +41,7 @@
 Summary: Package that installs %{scl}
 Name: %{scl}
 Version: 2.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: GPLv2+
 Group: Applications/File
 Source0: README
@@ -204,6 +204,9 @@ selinuxenabled && load_policy || :
 %{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
 
 %changelog
+* Mon Jan 12 2015 Honza Horak <hhorak@redhat.com> - 2.0-4
+- Use scl macros more generally
+
 * Fri Jan 09 2015 Honza Horak <hhorak@redhat.com> - 2.0-3
 - Change prefix handling
 
