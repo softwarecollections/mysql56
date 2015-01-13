@@ -5,7 +5,7 @@
 %{!?version_minor: %global version_minor 6}
 %{!?scl_name_version: %global scl_name_version %{version_major}%{version_minor}}
 %{!?scl: %global scl %{scl_name_prefix}%{scl_name_base}%{scl_name_version}}
-%global scl_name_base_upper %{lua:print(string.upper(rpm.expand("%{scl_name_base}")))}
+%global scl_upper %{lua:print(string.upper(string.gsub(rpm.expand("%{scl}"), "-", "_")))}
 
 # Turn on new layout -- prefix for packages and location
 # for config and variable files
@@ -41,7 +41,7 @@
 Summary: Package that installs %{scl}
 Name: %{scl}
 Version: 2.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: GPLv2+
 Group: Applications/File
 Source0: README
@@ -155,10 +155,9 @@ cat >> %{buildroot}%{?_scl_scripts}/service-environment << EOF
 # environment (like environment variable values). As a consequence,
 # information of all enabled collections will be lost during service start up.
 # If user needs to run a service under any software collection enabled, this
-# collection has to be written into %{scl_name_base_upper}\
-%{scl_name_version}_SCLS_ENABLED variable in
-# /opt/rh/sclname/service-environment.
-%{scl_name_base_upper}%{scl_name_version}_SCLS_ENABLED="%{scl}"
+# collection has to be written into %{scl_upper}_SCLS_ENABLED variable 
+# in %{?_scl_scripts}/service-environment.
+%{scl_upper}_SCLS_ENABLED="%{scl}"
 EOF
 
 # install generated man page
@@ -204,6 +203,9 @@ selinuxenabled && load_policy || :
 %{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
 
 %changelog
+* Tue Jan 13 2015 Honza Horak <hhorak@redhat.com> - 2.0-5
+- Use prefix in service-environment variable
+
 * Mon Jan 12 2015 Honza Horak <hhorak@redhat.com> - 2.0-4
 - Use scl macros more generally
 
