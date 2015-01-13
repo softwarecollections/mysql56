@@ -175,11 +175,11 @@ semanage fcontext -a -e %{selinux_config_source} %{_sysconfdir}/my.cnf >/dev/nul
 semanage fcontext -a -e %{selinux_config_source} %{_sysconfdir}/my.cnf.d >/dev/null 2>&1 || :
 semanage fcontext -a -e %{selinux_log_source} %{logfiledir} >/dev/null 2>&1 || :
 semanage fcontext -a -e %{selinux_daemon_source} %{daemondir}/%{daemonname} >/dev/null 2>&1 || :
+selinuxenabled && load_policy || :
 restorecon -R %{?_scl_root} >/dev/null 2>&1 || :
 restorecon -R %{_sysconfdir} >/dev/null 2>&1 || :
 restorecon -R %{logfiledir} >/dev/null 2>&1 || :
 restorecon %{daemondir}/%{daemonname} >/dev/null 2>&1 || :
-selinuxenabled && load_policy || :
 
 %files
 
