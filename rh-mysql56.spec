@@ -20,7 +20,7 @@
 Summary: Package that installs %{scl}
 Name: %{scl}
 Version: 2.0
-Release: 7%{?dist}
+Release: 8%{?dist}
 License: GPLv2+
 Group: Applications/File
 Source0: README
@@ -197,7 +197,7 @@ mkdir -p %{buildroot}%{?_scl_scripts}/register.content%{_sysconfdir}
 %{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
 
 %changelog
-* Sat Jan 17 2015 Honza Horak <hhorak@redhat.com>
+* Sat Jan 17 2015 Honza Horak <hhorak@redhat.com> - 2.0-8
 - Rework register implementation
 
 * Fri Jan 16 2015 Honza Horak <hhorak@redhat.com> - 2.0-7
