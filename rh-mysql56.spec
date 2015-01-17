@@ -5,7 +5,6 @@
 %{!?version_minor: %global version_minor 6}
 %{!?scl_name_version: %global scl_name_version %{version_major}%{version_minor}}
 %{!?scl: %global scl %{scl_name_prefix}%{scl_name_base}%{scl_name_version}}
-%global scl_upper %{lua:print(string.upper(string.gsub(rpm.expand("%{scl}"), "-", "_")))}
 
 # Turn on new layout -- prefix for packages and location
 # for config and variable files
@@ -15,33 +14,13 @@
 # Define SCL macros
 %{?scl_package:%scl_package %scl}
 
-# Define where to get propper SELinux context
-# and define names and locations specific for the whole collection
-%global selinux_config_source %{?_root_sysconfdir}/my.cnf
-%global daemonname %{?scl_prefix}mysqld
-%global selinux_log_source %{?_root_localstatedir}/log/mysql
-%if 0%{?rhel} >= 7 || 0%{?fedora} >= 15
-%global selinux_daemon_source %{_unitdir}/mysqld
-%global daemondir %{_unitdir}
-%else
-%global selinux_daemon_source %{_initddir}/mysqld
-%global daemondir %{_initddir}
-%endif
-%if 0%{?nfsmountable:1}
-%global logfiledir %{_localstatedir}/log
-%global dbdatadir %{_localstatedir}/lib/mysql
-%else
-%global logfiledir %{?_root_localstatedir}/log/%{?scl_prefix}mysqld
-%global dbdatadir %{?_scl_root}/var/lib/mysql
-%endif
-
 # do not produce empty debuginfo package
 %global debug_package %{nil}
 
 Summary: Package that installs %{scl}
 Name: %{scl}
 Version: 2.0
-Release: 5%{?dist}
+Release: 7%{?dist}
 License: GPLv2+
 Group: Applications/File
 Source0: README
@@ -52,10 +31,11 @@ BuildRequires: scl-utils-build help2man
 
 %description
 This is the main package for %{scl} Software Collection, which installs
-necessary packages to use MySQL %{version_major}.%{version_minor} server, a community developed branch
-of MySQL. Software Collections allow to install more versions of the same
+necessary packages to use MySQL %{version_major}.%{version_minor} server.
+Software Collections allow to install more versions of the same
 package by using alternative directory structure.
-Install this package if you want to use MySQL %{version_major}.%{version_minor} server on your system.
+Install this package if you want to use MySQL %{version_major}.%{version_minor}
+server on your system.
 
 %package runtime
 Summary: Package that handles %{scl} Software Collection.
@@ -87,8 +67,8 @@ packages depending on %{scl} Software Collection.
 
 # This section generates README file from a template and creates man page
 # from that file, expanding RPM macros in the template file.
-cat >README <<'EOF'
-%{expand:%(cat %{SOURCE0})}
+cat <<'EOF' | tee README
+%include %{_sourcedir}/README
 EOF
 
 # copy the license file so %%files section sees it
@@ -96,7 +76,7 @@ cp %{SOURCE1} .
 
 %build
 # generate a helper script that will be used by help2man
-cat >h2m_helper <<'EOF'
+cat <<'EOF' | tee h2m_helper
 #!/bin/bash
 [ "$1" == "--version" ] && echo "%{?scl_name} %{version} Software Collection" || cat README
 EOF
@@ -115,7 +95,7 @@ mkdir -p %{buildroot}%{_datadir}/aclocal
 %endif
 
 # create enable scriptlet that sets correct environment for collection
-cat >> %{buildroot}%{?_scl_scripts}/enable << EOF
+cat << EOF | tee -a %{buildroot}%{?_scl_scripts}/enable
 # For binaries
 export PATH="%{_bindir}\${PATH:+:\${PATH}}"
 # For header files
@@ -136,33 +116,50 @@ export XDG_DATA_DIRS="%{_datadir}\${XDG_DATA_DIRS:+:\${XDG_DATA_DIRS}}"
 export PKG_CONFIG_PATH="%{_libdir}/pkgconfig\${PKG_CONFIG_PATH:+:\${PKG_CONFIG_PATH}}"
 EOF
 
-# define configuration and variable files location for whole collection
-cat >> %{buildroot}%{_root_sysconfdir}/rpm/macros.%{scl}-config << EOF
-%%scl_%{scl_name_base}_daemonname %{daemonname}
-%%scl_%{scl_name_base}_logfiledir %{logfiledir}
-%%scl_%{scl_name_base}_dbdatadir %{dbdatadir}
-EOF
-
 # generate rpm macros file for depended collections
-cat >> %{buildroot}%{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel << EOF
+cat << EOF | tee -a %{buildroot}%{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
 %%scl_%{scl_name_base} %{scl}
 %%scl_prefix_%{scl_name_base} %{?scl_prefix}
-EOF
-
-# generate a configuration file for daemon
-cat >> %{buildroot}%{?_scl_scripts}/service-environment << EOF
-# Services are started in a fresh environment without any influence of user's
-# environment (like environment variable values). As a consequence,
-# information of all enabled collections will be lost during service start up.
-# If user needs to run a service under any software collection enabled, this
-# collection has to be written into %{scl_upper}_SCLS_ENABLED variable 
-# in %{?_scl_scripts}/service-environment.
-%{scl_upper}_SCLS_ENABLED="%{scl}"
 EOF
 
 # install generated man page
 mkdir -p %{buildroot}%{_mandir}/man7/
 install -m 644 %{?scl_name}.7 %{buildroot}%{_mandir}/man7/%{?scl_name}.7
+
+# create directory for SCL register scripts
+mkdir -p %{buildroot}%{?_scl_scripts}/register.content
+mkdir -p %{buildroot}%{?_scl_scripts}/register.d
+cat <<EOF | tee %{buildroot}%{?_scl_scripts}/register
+#!/bin/sh
+ls %{?_scl_scripts}/register.d/* | while read file ; do
+    [ -x \$f ] && source \$(readlink -f \$file)
+done
+EOF
+# and deregister as well
+mkdir -p %{buildroot}%{?_scl_scripts}/deregister.d
+cat <<EOF | tee %{buildroot}%{?_scl_scripts}/deregister
+#!/bin/sh
+ls %{?_scl_scripts}/deregister.d/* | while read file ; do
+    [ -x \$f ] && source \$(readlink -f \$file)
+done
+EOF
+
+cat <<EOF | tee %{buildroot}%{?_scl_scripts}/register.d/30.selinux-set
+#!/bin/sh
+semanage fcontext -a -e / %{?_scl_root} >/dev/null 2>&1 || :
+semanage fcontext -a -e %{_root_sysconfdir} %{_sysconfdir} >/dev/null 2>&1 || :
+semanage fcontext -a -e %{_root_localstatedir} %{_localstatedir} >/dev/null 2>&1 || :
+selinuxenabled && load_policy || :
+EOF
+cat <<EOF | tee %{buildroot}%{?_scl_scripts}/register.d/70.selinux-restore
+restorecon -R %{?_scl_root} >/dev/null 2>&1 || :
+restorecon -R %{_sysconfdir} >/dev/null 2>&1 || :
+restorecon -R %{_localstatedir} >/dev/null 2>&1 || :
+EOF
+
+# we need to own all these directories, so create them to have them listed
+mkdir -p %{buildroot}%{?_scl_scripts}/register.content%{_unitdir}
+mkdir -p %{buildroot}%{?_scl_scripts}/register.content%{_sysconfdir}
 
 %post runtime
 # Simple copy of context from system root to SCL root.
@@ -170,16 +167,8 @@ install -m 644 %{?scl_name}.7 %{buildroot}%{_mandir}/man7/%{?scl_name}.7
 # it needs to be solved in base system.
 # semanage does not have -e option in RHEL-5, so we would
 # have to have its own policy for collection.
-semanage fcontext -a -e / %{?_scl_root} >/dev/null 2>&1 || :
-semanage fcontext -a -e %{selinux_config_source} %{_sysconfdir}/my.cnf >/dev/null 2>&1 || :
-semanage fcontext -a -e %{selinux_config_source} %{_sysconfdir}/my.cnf.d >/dev/null 2>&1 || :
-semanage fcontext -a -e %{selinux_log_source} %{logfiledir} >/dev/null 2>&1 || :
-semanage fcontext -a -e %{selinux_daemon_source} %{daemondir}/%{daemonname} >/dev/null 2>&1 || :
-selinuxenabled && load_policy || :
-restorecon -R %{?_scl_root} >/dev/null 2>&1 || :
-restorecon -R %{_sysconfdir} >/dev/null 2>&1 || :
-restorecon -R %{logfiledir} >/dev/null 2>&1 || :
-restorecon %{daemondir}/%{daemonname} >/dev/null 2>&1 || :
+%{?_scl_scripts}/register.d/30.selinux-set
+%{?_scl_scripts}/register.d/70.selinux-restore
 
 %files
 
@@ -191,8 +180,13 @@ restorecon %{daemondir}/%{daemonname} >/dev/null 2>&1 || :
 %endif
 %doc README LICENSE
 %{?scl_files}
-%config(noreplace) %{?_scl_scripts}/service-environment
 %{_mandir}/man7/%{?scl_name}.*
+%attr(0755,root,root) %{?_scl_scripts}/register
+%attr(0755,root,root) %{?_scl_scripts}/deregister
+%{?_scl_scripts}/register.content
+%dir %{?_scl_scripts}/register.d
+%dir %{?_scl_scripts}/deregister.d
+%attr(0755,root,root) %{?_scl_scripts}/register.d/*
 
 %files build
 %doc LICENSE
@@ -203,6 +197,15 @@ restorecon %{daemondir}/%{daemonname} >/dev/null 2>&1 || :
 %{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
 
 %changelog
+* Sat Jan 17 2015 Honza Horak <hhorak@redhat.com>
+- Rework register implementation
+
+* Fri Jan 16 2015 Honza Horak <hhorak@redhat.com> - 2.0-7
+- Move service-environment into mariadb package
+
+* Tue Jan 13 2015 Honza Horak <hhorak@redhat.com> - 2.0-6
+- Re-work selinux rules setting and register layout
+
 * Tue Jan 13 2015 Honza Horak <hhorak@redhat.com> - 2.0-5
 - Use prefix in service-environment variable
 
