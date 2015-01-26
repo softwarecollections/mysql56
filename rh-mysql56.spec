@@ -20,7 +20,7 @@
 Summary: Package that installs %{scl}
 Name: %{scl}
 Version: 2.0
-Release: 9%{?dist}
+Release: 10%{?dist}
 License: GPLv2+
 Group: Applications/File
 Source0: README
@@ -68,7 +68,7 @@ packages depending on %{scl} Software Collection.
 # This section generates README file from a template and creates man page
 # from that file, expanding RPM macros in the template file.
 cat <<'EOF' | tee README
-%include %{_sourcedir}/README
+%{expand:%(cat %{SOURCE0})}
 EOF
 
 # copy the license file so %%files section sees it
@@ -197,6 +197,9 @@ restorecon -R %{?_scl_root} >/dev/null 2>&1 || :
 %{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
 
 %changelog
+* Mon Jan 26 2015 Honza Horak <hhorak@redhat.com> - 2.0-10
+- Use cat for README expansion, rather than include macro
+
 * Mon Jan 26 2015 Honza Horak <hhorak@redhat.com> - 2.0-9
 - Do not set selinux context  scl root during scl register
 
