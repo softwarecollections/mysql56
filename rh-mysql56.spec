@@ -20,7 +20,7 @@
 Summary: Package that installs %{scl}
 Name: %{scl}
 Version: 2.0
-Release: 8%{?dist}
+Release: 9%{?dist}
 License: GPLv2+
 Group: Applications/File
 Source0: README
@@ -146,13 +146,11 @@ EOF
 
 cat <<EOF | tee %{buildroot}%{?_scl_scripts}/register.d/30.selinux-set
 #!/bin/sh
-semanage fcontext -a -e / %{?_scl_root} >/dev/null 2>&1 || :
 semanage fcontext -a -e %{_root_sysconfdir} %{_sysconfdir} >/dev/null 2>&1 || :
 semanage fcontext -a -e %{_root_localstatedir} %{_localstatedir} >/dev/null 2>&1 || :
 selinuxenabled && load_policy || :
 EOF
 cat <<EOF | tee %{buildroot}%{?_scl_scripts}/register.d/70.selinux-restore
-restorecon -R %{?_scl_root} >/dev/null 2>&1 || :
 restorecon -R %{_sysconfdir} >/dev/null 2>&1 || :
 restorecon -R %{_localstatedir} >/dev/null 2>&1 || :
 EOF
@@ -167,7 +165,9 @@ mkdir -p %{buildroot}%{?_scl_scripts}/register.content%{_sysconfdir}
 # it needs to be solved in base system.
 # semanage does not have -e option in RHEL-5, so we would
 # have to have its own policy for collection.
+semanage fcontext -a -e / %{?_scl_root} >/dev/null 2>&1 || :
 %{?_scl_scripts}/register.d/30.selinux-set
+restorecon -R %{?_scl_root} >/dev/null 2>&1 || :
 %{?_scl_scripts}/register.d/70.selinux-restore
 
 %files
@@ -197,6 +197,9 @@ mkdir -p %{buildroot}%{?_scl_scripts}/register.content%{_sysconfdir}
 %{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
 
 %changelog
+* Mon Jan 26 2015 Honza Horak <hhorak@redhat.com> - 2.0-9
+- Do not set selinux context  scl root during scl register
+
 * Sat Jan 17 2015 Honza Horak <hhorak@redhat.com> - 2.0-8
 - Rework register implementation
 
