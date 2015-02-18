@@ -20,7 +20,7 @@
 Summary: Package that installs %{scl}
 Name: %{scl}
 Version: 2.0
-Release: 10%{?dist}
+Release: 11%{?dist}
 License: GPLv2+
 Group: Applications/File
 Source0: README
@@ -126,39 +126,6 @@ EOF
 mkdir -p %{buildroot}%{_mandir}/man7/
 install -m 644 %{?scl_name}.7 %{buildroot}%{_mandir}/man7/%{?scl_name}.7
 
-# create directory for SCL register scripts
-mkdir -p %{buildroot}%{?_scl_scripts}/register.content
-mkdir -p %{buildroot}%{?_scl_scripts}/register.d
-cat <<EOF | tee %{buildroot}%{?_scl_scripts}/register
-#!/bin/sh
-ls %{?_scl_scripts}/register.d/* | while read file ; do
-    [ -x \$f ] && source \$(readlink -f \$file)
-done
-EOF
-# and deregister as well
-mkdir -p %{buildroot}%{?_scl_scripts}/deregister.d
-cat <<EOF | tee %{buildroot}%{?_scl_scripts}/deregister
-#!/bin/sh
-ls %{?_scl_scripts}/deregister.d/* | while read file ; do
-    [ -x \$f ] && source \$(readlink -f \$file)
-done
-EOF
-
-cat <<EOF | tee %{buildroot}%{?_scl_scripts}/register.d/30.selinux-set
-#!/bin/sh
-semanage fcontext -a -e %{_root_sysconfdir} %{_sysconfdir} >/dev/null 2>&1 || :
-semanage fcontext -a -e %{_root_localstatedir} %{_localstatedir} >/dev/null 2>&1 || :
-selinuxenabled && load_policy || :
-EOF
-cat <<EOF | tee %{buildroot}%{?_scl_scripts}/register.d/70.selinux-restore
-restorecon -R %{_sysconfdir} >/dev/null 2>&1 || :
-restorecon -R %{_localstatedir} >/dev/null 2>&1 || :
-EOF
-
-# we need to own all these directories, so create them to have them listed
-mkdir -p %{buildroot}%{?_scl_scripts}/register.content%{_unitdir}
-mkdir -p %{buildroot}%{?_scl_scripts}/register.content%{_sysconfdir}
-
 %post runtime
 # Simple copy of context from system root to SCL root.
 # In case new version needs some additional rules or context definition,
@@ -166,9 +133,12 @@ mkdir -p %{buildroot}%{?_scl_scripts}/register.content%{_sysconfdir}
 # semanage does not have -e option in RHEL-5, so we would
 # have to have its own policy for collection.
 semanage fcontext -a -e / %{?_scl_root} >/dev/null 2>&1 || :
-%{?_scl_scripts}/register.d/30.selinux-set
+semanage fcontext -a -e %{_root_sysconfdir} %{_sysconfdir} >/dev/null 2>&1 || :
+semanage fcontext -a -e %{_root_localstatedir} %{_localstatedir} >/dev/null 2>&1 || :
+selinuxenabled && load_policy || :
 restorecon -R %{?_scl_root} >/dev/null 2>&1 || :
-%{?_scl_scripts}/register.d/70.selinux-restore
+restorecon -R %{_sysconfdir} >/dev/null 2>&1 || :
+restorecon -R %{_localstatedir} >/dev/null 2>&1 || :
 
 %files
 
@@ -181,12 +151,6 @@ restorecon -R %{?_scl_root} >/dev/null 2>&1 || :
 %doc README LICENSE
 %{?scl_files}
 %{_mandir}/man7/%{?scl_name}.*
-%attr(0755,root,root) %{?_scl_scripts}/register
-%attr(0755,root,root) %{?_scl_scripts}/deregister
-%{?_scl_scripts}/register.content
-%dir %{?_scl_scripts}/register.d
-%dir %{?_scl_scripts}/deregister.d
-%attr(0755,root,root) %{?_scl_scripts}/register.d/*
 
 %files build
 %doc LICENSE
@@ -197,6 +161,9 @@ restorecon -R %{?_scl_root} >/dev/null 2>&1 || :
 %{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
 
 %changelog
+* Wed Feb 18 2015 Honza Horak <hhorak@redhat.com> - 2.0-11
+- Remove NFS register feature for questionable usage for DBs
+
 * Mon Jan 26 2015 Honza Horak <hhorak@redhat.com> - 2.0-10
 - Use cat for README expansion, rather than include macro
 
