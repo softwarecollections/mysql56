@@ -20,7 +20,7 @@
 Summary: Package that installs %{scl}
 Name: %{scl}
 Version: 2.0
-Release: 11%{?dist}
+Release: 12%{?dist}
 License: GPLv2+
 Group: Applications/File
 Source0: README
@@ -161,6 +161,10 @@ restorecon -R %{_localstatedir} >/dev/null 2>&1 || :
 %{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
 
 %changelog
+* Mon Mar 09 2015 Honza Horak <hhorak@redhat.com> - 2.0-12
+- Rebuild due to 'scls' removal
+  Resolves: #1200052
+
 * Wed Feb 18 2015 Honza Horak <hhorak@redhat.com> - 2.0-11
 - Remove NFS register feature for questionable usage for DBs
 
