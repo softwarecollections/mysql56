@@ -1,25 +1,24 @@
-Package %{?scl_name} provides MariaDB database server delivered as a Software
-Collection. For more information about Software Collections,
+Package %{?scl_name} provides MySQL database server delivered as a Software
+Collection (SCL). For more information about Software Collections,
 see the scl(1) man page. By installing the %{?scl_name} collection,
 you will get the minimum working set of packages to have a working
-MariaDB database server.
+MySQL database server.
 
 %if 0%{?rhel} >= 7 || 0%{?fedora} >= 15
-Usage: systemctl start %{?scl_prefix}mariadb
+Usage: systemctl start %{?scl_prefix}mysqld
 %else
 Usage: service %{?scl_prefix}mysqld start
 %endif
 
 Software Collections allow you to build and execute applications
 which are not located in the filesystem root hierarchy,
-but are stored in an alternative location, which is %{_scl_root}
+but are stored in an alternative location, which is %{?_scl_root}
 in case of the %{?scl_name} collection.
 
-MariaDB is a multi-user, multi-threaded SQL database server. It is a
+MySQL is a multi-user, multi-threaded SQL database server. It is a
 client/server implementation consisting of a server daemon (mysqld)
 and many different client programs and libraries. This package contains
-the MariaDB server and some accompanying files and directories.
-MariaDB is a community developed branch of MySQL.
+the MySQL server and some accompanying files and directories.
 
 When you want to work with the %{?scl_name} collection, use the scl
 utility (see the scl(1) man page for usage) to enable the scl
@@ -30,7 +29,7 @@ implicitely within the SysV init script or systemd unit file.
 Configuration for the %{?scl_name} software collection is located
 under %{_sysconfdir}.
 
-MariaDB server listens on network soket (by default port 3306) and unix socket
+MySQL server listens on network soket (by default port 3306) and unix socket
 (by default /var/lib/mysql/mysql.sock).
 
 Examples:
@@ -45,18 +44,27 @@ scl enable %{?scl_name} bash
   Run an interactive shell with the %{?scl_name} software collection enabled.
 
 %if 0%{?rhel} >= 7 || 0%{?fedora} >= 15
-systemctl start %{?scl_prefix}mariadb
+systemctl start %{?scl_prefix}mysqld 
 %else
 service %{?scl_prefix}mysqld start
 %endif
-    Starts the MariaDB server from %{?scl_name} software collection.
+    Starts the MySQL server from %{?scl_name} software collection.
 
 scl enable %{?scl_name} 'man mysql'
   Show man pages for the mysql command, which is a part of the
   %{?scl_name} software collection.
 
+For running the test suite, which is available in %{?scl_prefix}mysql-test
+package, see the %{_datadir}/mysql-test/README. Please, be aware that you need
+to run all the commands mentioned in the README file in a proper SCL
+environment. Thus the recommended way to run the test suite is to run the bash
+with %{?scl_name} collection enabled:
+
+scl enable %{?scl_name} bash
+  Run bash with the %{?scl_name} collection enabled.
+
 Files:
-%{_scl_scripts}/service-environment
+%{?_scl_scripts}/service-environment
 Define which software collections should be enabled for the daemon process.
 
 Report bugs to <http://bugzilla.redhat.com>.

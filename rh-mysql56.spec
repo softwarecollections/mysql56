@@ -20,7 +20,7 @@
 Summary: Package that installs %{scl}
 Name: %{scl}
 Version: 2.0
-Release: 12%{?dist}
+Release: 13%{?dist}
 License: GPLv2+
 Group: Applications/File
 Source0: README
@@ -161,6 +161,10 @@ restorecon -R %{_localstatedir} >/dev/null 2>&1 || :
 %{_root_sysconfdir}/rpm/macros.%{scl_name_base}-scldevel
 
 %changelog
+* Tue Mar 17 2015 Honza Horak <hhorak@redhat.com> - 2.0-13
+- Add comment about running the test suite
+  Related: #1194759
+
 * Mon Mar 09 2015 Honza Horak <hhorak@redhat.com> - 2.0-12
 - Rebuild due to 'scls' removal
   Resolves: #1200052
